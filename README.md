@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Delhi Pollution Live Map (Open Source)
+
+A real-time, collaboration-friendly dashboard to visualize the Delhi Pollution Crisis.
+This project aggregates official CPCB data and combines it with simulated citizen sensor data and crowdsourced reports to provide a comprehensive view of air quality.
+
+## Features
+
+- **Live Map**: Interactive map of Delhi using MapLibre GL JS.
+- **Multi-Layer Data**:
+    - 🛡️ **Official CPCB Stations**: Real-time AQI and PM2.5/PM10 from official sources.
+    - 📡 **Citizen Sensors** (Simulated): Low-cost sensor mesh network data.
+    - ⚠️ **Citizen Reports** (Simulated): Crowdsourced reports of burning, dust, and traffic.
+- **Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Supabase (PostGIS).
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 18+
+- npm or pnpm
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/delhi-pollution-map.git
+    cd delhi-pollution-map
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    pnpm install
+    ```
 
-## Learn More
+3.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+4.  **Open the Map:**
+    Navigate to [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture & Data Simulation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> [!IMPORTANT]
+> **Simulation Mode**: By default, this project runs in "Simulation Mode". It does not require a live database to stand up.
+>
+> - **Official Data**: Static snapshot of CPCB data (can be replaced with live API fetch).
+> - **Citizen Sensors**: Procedurally generated based on proximity to official stations + noise covariance.
+> - **Reports**: Randomly generated clusters of pollution events.
 
-## Deploy on Vercel
+To connect a real backend:
+1.  Set up a Supabase project.
+2.  Run the SQL schema provided in `supabase/schema.sql`.
+3.  Update `src/app/api/...` routes to fetch from Supabase instead of `src/lib/simulation.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+We welcome contributions! Please see `CONTRIBUTING.md` (coming soon) for details.
+
+1.  Fork the repo.
+2.  Create a feature branch.
+3.  Submit a Pull Request.
+
+## License
+
+MIT License. This is a public instrument.

@@ -3,10 +3,9 @@ export type Coordinates = {
   lng: number;
 };
 
-export type PollutantValue = {
-  value: number;
-  unit: string;
-};
+export type Region = 'Delhi' | 'Haryana' | 'Punjab';
+
+export type Pollutant = 'pm25' | 'pm10' | 'no2' | 'so2' | 'co';
 
 export type AQIStation = {
   id: string;
@@ -15,32 +14,57 @@ export type AQIStation = {
   aqi: number;
   pm25: number;
   pm10: number;
+  no2: number;
+  so2: number;
+  co: number;
   lastUpdated: string;
-  source: 'CPCB' | 'SAFAR' | 'DPCC';
+  source: 'CPCB';
 };
 
 export type CitizenSensor = {
   id: string;
   location: Coordinates;
   pm25: number;
-  confidence: number; // 0-1
+  pm10?: number;
+  no2?: number;
+  so2?: number;
+  co?: number;
+  confidence: number;
   lastUpdated: string;
 };
 
-export type ReportType = 'GARBAGE_BURNING' | 'CONSTRUCTION_DUST' | 'TRAFFIC_CONGESTION' | 'INDUSTRIAL_SMOKE';
-
 export type CitizenReport = {
   id: string;
-  type: ReportType;
+  type: 'GARBAGE_BURNING' | 'CONSTRUCTION_DUST' | 'TRAFFIC_CONGESTION';
   severity: number; // 1-5
   location: Coordinates;
   timestamp: string;
   verified: boolean;
 };
 
-export interface LayerToggle {
+export type PollutionSourceCategory =
+  | 'Power & Energy'
+  | 'Industrial Manufacturing'
+  | 'Brick & Construction Materials'
+  | 'Waste & Burning'
+  | 'Construction & Urban Dust'
+  | 'Fuel Combustion'
+  | 'Agriculture-Linked'
+  | 'Public & Institutional';
+
+export type PollutionSource = {
   id: string;
+  category: PollutionSourceCategory;
+  subType: string;
+  label: string;
+  location: Coordinates;
+};
+
+export type LayerToggle = {
+  id: 'cpcb' | 'sensors' | 'reports';
   label: string;
   active: boolean;
   color: string;
-}
+};
+
+export type TimeRange = 'live' | '24h' | '7d' | '30d';

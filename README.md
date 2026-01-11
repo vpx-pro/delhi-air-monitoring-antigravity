@@ -1,16 +1,45 @@
 # Delhi Pollution Live Map (Open Source)
 
-A real-time, collaboration-friendly dashboard to visualize the Delhi Pollution Crisis.
-This project aggregates official CPCB data and combines it with simulated citizen sensor data and crowdsourced reports to provide a comprehensive view of air quality.
+A real-time, collaboration-friendly dashboard to pinpoint precise locations of emissions, enabling communities to work on them individually.
+This project aggregates official CPCB data and combines it with simulated citizen sensor data and crowdsourced reports to provide a comprehensive view of air quality across NorthWest India.
+
+## Roadmap & Priorities
+
+This project follows a strict prioritized rollout plan. See [ROADMAP.md](./ROADMAP.md) for full details.
+
+1.  **Phase 1 (Core)**: Delhi City, Monthly/Weekly Data (PM 2.5/10).
+2.  **Phase 2 (Expansion)**: NCR, Daily Data.
+3.  **Phase 3 (Regional)**: NorthWest India, Real-Time Data (All Gases).
 
 ## Features
 
-- **Live Map**: Interactive map of Delhi using MapLibre GL JS.
-- **Multi-Layer Data**:
-    - 🛡️ **Official CPCB Stations**: Real-time AQI and PM2.5/PM10 from official sources.
-    - 📡 **Citizen Sensors** (Simulated): Low-cost sensor mesh network data.
-    - ⚠️ **Citizen Reports** (Simulated): Crowdsourced reports of burning, dust, and traffic.
-- **Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Supabase (PostGIS).
+### 🌍 Interactive Map & Filtering
+- **Dynamic Region Selection**: Seamlessly switch between **Delhi**, **Haryana**, and **Punjab** views to analyze regional pollution trends.
+- **Pollutant Filtering**: Toggle layers for **PM2.5**, **PM10**, **NO2**, **SO2**, and **CO** to visualize specific pollutants.
+- **Time Range Analysis**: Filter historical data views (Last 24h, 7 Days, 30 Days).
+- **Fire Mode**: A specialized mode to track biomass burning events ("GARBAGE_BURNING") synced with the citizen reports layer.
+
+### 📊 Multi-Layer Data Visualization
+- 🛡️ **Official CPCB Stations**: Real-time AQI and pollutant data from official government stations.
+- 📡 **Citizen Sensors** (Simulated): A dense network of low-cost IoT sensors providing granular neighborhood-level data.
+- ⚠️ **Citizen Reports** (Simulated): Crowdsourced reports of pollution events like burning, construction dust, and traffic congestion.
+
+### 🎨 Modern UI/UX
+- **Glassmorphism Design**: sleek, semi-transparent controls for a premium look.
+- **Responsive Layout**: Optimized for both Desktop (collapsible sidebar) and Mobile (bottom drawer).
+- **Dynamic Map Styling**: Automatic map fly-to and zoom adjustments based on region selection.
+
+## Tech Stack
+
+This project is built with a modern, performance-focused stack:
+
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Map Engine**: [MapLibre GL](https://maplibre.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Utils**: `clsx`, `tailwind-merge` for dynamic classes.
+- **Deployment**: Vercel (recommended)
 
 ## Getting Started
 

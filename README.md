@@ -74,16 +74,29 @@ This project is built with a modern, performance-focused stack:
 ## Architecture & Data Simulation
 
 > [!IMPORTANT]
-> **Simulation Mode**: By default, this project runs in "Simulation Mode". It does not require a live database to stand up.
+> **Hybrid Mode**: This project automatically switches between "Live" and "Simulated" data.
 >
-> - **Official Data**: Static snapshot of CPCB data (can be replaced with live API fetch).
-> - **Citizen Sensors**: Procedurally generated based on proximity to official stations + noise covariance.
-> - **Reports**: Randomly generated clusters of pollution events.
+> - **Live Data (WAQI/CPCB)**: If a `WAQI_API_TOKEN` is present in `.env.local`, the app fetches real-time AQI data from official stations.
+> - **Simulation Fallback**: If no token is provided or the API fails, the app seamlessly falls back to a robust simulation engine.
+>
+> **Data Layers:**
+> 1.  **Official Data**: Live API or Static Snapshot (CPCB).
+> 2.  **Citizen Sensors**: Procedurally generated based on proximity to official stations + noise covariance.
+> 3.  **Reports**: Randomly generated clusters of pollution events.
 
-To connect a real backend:
+To connect a real backend for sensors/reports:
 1.  Set up a Supabase project.
 2.  Run the SQL schema provided in `supabase/schema.sql`.
 3.  Update `src/app/api/...` routes to fetch from Supabase instead of `src/lib/simulation.ts`.
+
+### Live Data Setup
+To enable live CPCB data:
+1.  Get a free token from [AQICN](https://aqicn.org/data-platform/token/).
+2.  Create `.env.local`:
+    ```env
+    WAQI_API_TOKEN=your_token_here
+    ```
+3.  Restart the dev server.
 
 ## Contributing
 

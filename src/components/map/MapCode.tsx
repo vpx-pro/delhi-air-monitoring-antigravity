@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { AQIStation, CitizenSensor, CitizenReport, LayerToggle, TimeRange, Pollutant, Region, PollutionSource, PollutionSourceCategory } from '@/lib/types';
 import { Locate, ShieldAlert, Wifi, Users, Calendar, CloudFog, Flame, Droplets, Zap, Activity, Info, Map as MapIcon, Factory, Hammer, BrickWall, Trash2, HardHat, Wheat, Building2, Utensils } from 'lucide-react';
 import clsx from 'clsx';
@@ -12,6 +13,7 @@ type Props = {
     sensors: CitizenSensor[];
     reports: CitizenReport[];
     sources: PollutionSource[];
+    isLive?: boolean;
 };
 
 const TIME_RANGES: { id: TimeRange; label: string }[] = [
@@ -35,7 +37,7 @@ const POLLUTANTS: { id: Pollutant; label: string; color: string; icon: any }[] =
     { id: 'co', label: 'CO', color: '#eab308', icon: Activity }, // Yellow
 ];
 
-export default function MapCode({ stations, sensors, reports, sources }: Props) {
+export default function MapCode({ stations, sensors, reports, sources, isLive }: Props) {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
     const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -362,62 +364,84 @@ export default function MapCode({ stations, sensors, reports, sources }: Props) 
 
         const installPointer = (layerId: string) => {
             if (!map.current) return;
-            map.current.on('mouseenter', layerId, (e: any) => { // Type as any for quick fix, or maplibregl.MapLayerMouseEvent
+
+            // Mouse Enter (Desktop Hover)
+            map.current.on('mouseenter', layerId, (e: any) => {
                 if (!map.current) return;
                 map.current.getCanvas().style.cursor = 'pointer';
-
-                // Ensure we have features
-                if (!e.features || e.features.length === 0) return;
-
-                const coordinates = (e.features[0].geometry as any).coordinates.slice();
-                const props = e.features[0].properties;
-
-                let html = '';
-                if (layerId === 'cpcb-layer') {
-                    // Dynamic value based on selected pollutant
-                    const value = props[selectedPollutant];
-                    const unit = selectedPollutant === 'co' ? 'mg/m³' : 'µg/m³';
-
-                    html = `<div class="p-2 text-slate-900">
-                    <h3 class="font-bold">${props.name}</h3>
-                    <p class="uppercase text-xs font-bold text-gray-500">${selectedPollutant}</p>
-                    <p class="text-lg font-bold" style="color:${currentPollutantColor}">${value} <span class="text-xs text-gray-400 font-normal">${unit}</span></p>
-                    <p class="text-xs text-gray-500">Source: ${props.source}</p>
-                </div>`;
-                } else if (layerId === 'sensors-layer') {
-                    const value = props[selectedPollutant] || 'N/A';
-                    html = `<div class="p-2 text-slate-900">
-                    <h3 class="font-bold text-sm">Citizen Sensor</h3>
-                    <p class="uppercase text-xs font-bold text-gray-500">${selectedPollutant}</p>
-                    <p class="text-lg font-bold" style="color:${currentPollutantColor}">${value}</p>
-                    <p class="text-xs text-gray-500">Conf: ${props.confidence}</p>
-                </div>`;
-                } else if (layerId === 'reports-unclustered') {
-                    html = `<div class="p-2 text-slate-900">
-                    <h3 class="font-bold text-sm">${props.type.replace('_', ' ')}</h3>
-                    <p>Severity: ${props.severity}/5</p>
-                </div>`;
-                } else if (layerId === 'reports-clusters') {
-                    html = `<div class="p-2 text-slate-900">
-                    <p class="font-bold text-sm">Cluster</p>
-                    <p>${props.point_count} Reports</p>
-                </div>`;
-                }
-
-                // Correction for zoomed out clusters
-                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                }
-
-                popup.setLngLat(coordinates).setHTML(html).addTo(map.current);
+                showPopup(e, layerId);
             });
 
+            // Mouse Leave (Desktop)
             map.current.on('mouseleave', layerId, () => {
                 if (!map.current) return;
                 map.current.getCanvas().style.cursor = '';
                 popup.remove();
             });
+
+            // Click (Mobile & Sticky)
+            map.current.on('click', layerId, (e: any) => {
+                showPopup(e, layerId);
+            });
         }
+
+        const showPopup = (e: any, layerId: string) => {
+            if (!map.current || !e.features || e.features.length === 0) return;
+
+            const coordinates = (e.features[0].geometry as any).coordinates.slice();
+            const props = e.features[0].properties;
+
+            let html = '';
+            if (layerId === 'cpcb-layer') {
+                // Dynamic value based on selected pollutant
+                const value = props[selectedPollutant];
+
+                let label = selectedPollutant;
+                let unit = selectedPollutant === 'co' ? 'mg/m³' : 'µg/m³';
+
+                // Honest Labeling for Live Data (WAQI Search API only gives AQI)
+                if (isLive) {
+                    label = 'AQI (Overall)';
+                    unit = '';
+                }
+
+                html = `<div class="p-2 text-slate-900 min-w-[200px]">
+                    <h3 class="font-bold text-lg leading-tight mb-1 text-black">${props.name}</h3>
+                    <p class="uppercase text-xs font-bold text-gray-500 mb-2">${label}</p>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-3xl font-bold" style="color:${currentPollutantColor}">${value}</span>
+                        <span class="text-xs text-gray-500 font-medium">${unit}</span>
+                    </div>
+                    ${isLive ? '<p class="text-[10px] text-amber-600 font-medium mt-1">Note: Detailed breakdown not available in live feed.</p>' : ''}
+                    <p class="text-[10px] text-gray-400 mt-2 border-t pt-1">Source: ${props.source}</p>
+                </div>`;
+            } else if (layerId === 'sensors-layer') {
+                const value = props[selectedPollutant] || 'N/A';
+                html = `<div class="p-2 text-slate-900">
+                    <h3 class="font-bold text-sm text-black">Citizen Sensor</h3>
+                    <p class="uppercase text-xs font-bold text-gray-500">${selectedPollutant}</p>
+                    <p class="text-lg font-bold" style="color:${currentPollutantColor}">${value}</p>
+                    <p class="text-xs text-gray-500">Conf: ${props.confidence}</p>
+                </div>`;
+            } else if (layerId === 'reports-unclustered') {
+                html = `<div class="p-2 text-slate-900">
+                    <h3 class="font-bold text-sm text-black">${props.type.replace('_', ' ')}</h3>
+                    <p>Severity: ${props.severity}/5</p>
+                </div>`;
+            } else if (layerId === 'reports-clusters') {
+                html = `<div class="p-2 text-slate-900">
+                    <p class="font-bold text-sm text-black">Cluster</p>
+                    <p>${props.point_count} Reports</p>
+                </div>`;
+            }
+
+            // Correction for zoomed out clusters
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            popup.setLngLat(coordinates).setHTML(html).addTo(map.current!);
+        };
 
         // Re-install pointers cleanly? Actually MapLibre handles multiple listeners ok, but cleaner to remove old ones if this effect runs frequently. 
         // For now, this is efficient enough as dependencies change mainly on data update/layer toggle.
@@ -427,7 +451,7 @@ export default function MapCode({ stations, sensors, reports, sources }: Props) 
         installPointer('reports-unclustered');
         installPointer('reports-clusters');
 
-    }, [loaded, stations, sensors, reports, layers, selectedPollutant, fireMode]);
+    }, [loaded, stations, sensors, reports, layers, selectedPollutant, fireMode, isLive]);
 
     // Render Pollution Source Markers
     useEffect(() => {
@@ -518,13 +542,22 @@ export default function MapCode({ stations, sensors, reports, sources }: Props) 
 
     return (
         <div className="relative w-full h-full font-sans">
-            <div ref={mapContainer} className="absolute inset-0 z-0 bg-slate-900" />
+            <div ref={mapContainer} className="absolute inset-0 z-0 bg-slate-900" style={{ height: '100%', width: '100%' }} />
 
             {/* --- DESKTOP CONTROLS (Top-Left) --- */}
             <div className="hidden md:flex absolute top-4 left-4 z-10 flex-col gap-3 w-72 max-h-[calc(100vh-2rem)] overflow-y-auto no-scrollbar pb-4">
                 {/* TITLE CARD */}
                 <div className="bg-black/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-2xl shrink-0">
-                    <h2 className="text-white font-bold text-xl mb-1 tracking-tight">Delhi Pollution</h2>
+                    <div className="flex items-center gap-2 mb-1">
+                        <h2 className="text-white font-bold text-xl tracking-tight">Delhi Pollution</h2>
+                        {/* Live/Sim Indicator */}
+                        <div className={clsx(
+                            "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border",
+                            isLive ? "bg-green-500/20 text-green-400 border-green-500/50" : "bg-amber-500/20 text-amber-500 border-amber-500/50"
+                        )}>
+                            {isLive ? 'LIVE' : 'SIM'}
+                        </div>
+                    </div>
                     <p className="text-xs text-slate-400 font-medium tracking-wide uppercase">Real-time emission monitoring</p>
                 </div>
 

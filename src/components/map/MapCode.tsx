@@ -396,7 +396,7 @@ export default function MapCode({ stations, sensors, reports, sources, isLive }:
                 // Dynamic value based on selected pollutant
                 const value = props[selectedPollutant];
 
-                let label = selectedPollutant;
+                let label: string = selectedPollutant;
                 let unit = selectedPollutant === 'co' ? 'mg/m³' : 'µg/m³';
 
                 // Honest Labeling for Live Data (WAQI Search API only gives AQI)

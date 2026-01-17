@@ -8,6 +8,7 @@ import { Locate, ShieldAlert, Wifi, Users, Calendar, CloudFog, Flame, Droplets, 
 import clsx from 'clsx';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import ReportModal from './ReportModal';
+import { createClient } from '@/lib/supabase/client';
 
 type Props = {
     stations: AQIStation[];
@@ -403,10 +404,12 @@ export default function MapCode({ stations, sensors, reports, sources, isLive }:
     const [isSourcesOpen, setIsSourcesOpen] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem('delhi_air_mock_auth');
-            if (stored) setUser(JSON.parse(stored));
+        const checkUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
         }
+        checkUser();
     }, []);
 
     const handleReportClick = () => {

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AuthLayout from '@/components/auth/AuthLayout';
-import { MockAuthService } from '@/lib/auth-mock';
+import { createClient } from '@/lib/supabase/client';
 import { UserRole } from '@/lib/auth';
 import { Loader2 } from 'lucide-react';
 
@@ -17,6 +17,7 @@ export default function SignupPage() {
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
+        password: '',
         email: '',
         role: 'VOLUNTEER' as UserRole
     });
@@ -27,25 +28,32 @@ export default function SignupPage() {
         setError(null);
 
         // Basic validation
-        if (formData.phone.length < 10) {
-            setError('Please enter a valid phone number.');
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters.');
             setIsLoading(false);
             return;
         }
 
         try {
-            const { user, error: authError } = await MockAuthService.signUp(
-                formData.phone,
-                formData.fullName,
-                formData.role,
-                formData.email
-            );
+            const supabase = createClient();
+            const { data, error: authError } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        full_name: formData.fullName,
+                        phone: formData.phone,
+                        role: formData.role,
+                    },
+                },
+            });
 
             if (authError) {
-                setError(authError);
-            } else if (user) {
+                setError(authError.message);
+            } else if (data.user) {
                 // Success
                 router.push('/map?onboarding=true');
+                router.refresh();
             }
         } catch (err) {
             setError('Something went wrong. Please try again.');
@@ -79,6 +87,18 @@ export default function SignupPage() {
                 </div>
 
                 <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Email</label>
+                    <input
+                        required
+                        type="email"
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="e.g. aditi@example.com"
+                    />
+                </div>
+
+                <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Phone Number</label>
                     <input
                         required
@@ -91,13 +111,14 @@ export default function SignupPage() {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Email (Optional)</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
                     <input
-                        type="email"
-                        value={formData.email}
-                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        required
+                        type="password"
+                        value={formData.password}
+                        onChange={e => setFormData({ ...formData, password: e.target.value })}
                         className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="e.g. aditi@example.com"
+                        placeholder="At least 6 characters"
                     />
                 </div>
 
@@ -108,8 +129,8 @@ export default function SignupPage() {
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'VOLUNTEER' })}
                             className={`p-3 rounded-xl border text-sm font-bold transition-all ${formData.role === 'VOLUNTEER'
-                                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
-                                    : 'bg-slate-900 border-white/10 text-slate-400 hover:bg-slate-800'
+                                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
+                                : 'bg-slate-900 border-white/10 text-slate-400 hover:bg-slate-800'
                                 }`}
                         >
                             Volunteer
@@ -118,8 +139,8 @@ export default function SignupPage() {
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'OFFICIAL' })}
                             className={`p-3 rounded-xl border text-sm font-bold transition-all ${formData.role === 'OFFICIAL'
-                                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
-                                    : 'bg-slate-900 border-white/10 text-slate-400 hover:bg-slate-800'
+                                ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
+                                : 'bg-slate-900 border-white/10 text-slate-400 hover:bg-slate-800'
                                 }`}
                         >
                             Govt. Official

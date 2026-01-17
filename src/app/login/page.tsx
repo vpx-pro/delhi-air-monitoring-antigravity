@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AuthLayout from '@/components/auth/AuthLayout';
-import { MockAuthService } from '@/lib/auth-mock';
+import { createClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -13,7 +13,8 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,12 +22,17 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            const { user, error: authError } = await MockAuthService.signIn(phone);
+            const supabase = createClient();
+            const { error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
             if (authError) {
-                setError(authError);
-            } else if (user) {
+                setError(authError.message);
+            } else {
                 router.push('/map');
+                router.refresh();
             }
         } catch (err) {
             setError('Something went wrong. Please try again.');
@@ -48,22 +54,27 @@ export default function LoginPage() {
                 )}
 
                 <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Phone Number</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Email</label>
                     <input
                         required
-                        type="tel"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
                         className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="e.g. 9876543210"
+                        placeholder="e.g. aditi@example.com"
                     />
                 </div>
 
-                <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3 text-xs text-blue-300">
-                    <p>
-                        <strong>Mock Mode:</strong> If you just created an account, use that phone number.
-                        Otherwise, try creating a new account first.
-                    </p>
+                <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+                    <input
+                        required
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="Enter your password"
+                    />
                 </div>
 
                 <button

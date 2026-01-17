@@ -34,17 +34,31 @@ export default function ReportModal({ isOpen, onClose, location }: ReportModalPr
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const res = await fetch('/api/reports', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    category,
+                    severity,
+                    description,
+                    location
+                })
+            });
 
-        setIsSubmitting(false);
-        setSuccess(true);
+            if (!res.ok) throw new Error('Failed to submit');
 
-        // Close after success message
-        setTimeout(() => {
-            setSuccess(false);
-            onClose();
-        }, 2000);
+            setSuccess(true);
+            setTimeout(() => {
+                setSuccess(false);
+                onClose();
+            }, 2000);
+        } catch (e) {
+            console.error(e);
+            alert('Failed to submit report. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (success) {

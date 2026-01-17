@@ -96,8 +96,8 @@ export default function LandingPage() {
                     {/* Right Visual - Full Height */}
                     <div className="relative w-full h-[50vh] lg:h-full border-t lg:border-t-0 lg:border-l border-white/5 bg-slate-800">
                         <img
-                            src="https://images.unsplash.com/photo-1596464670233-a7c8d9c57dca?q=80&w=2070&auto=format&fit=crop"
-                            alt="Delhi Pollution Smog"
+                            src="/images/hero.png"
+                            alt="Delhi Pollution Futuristic Monitoring"
                             className="absolute inset-0 w-full h-full object-cover z-0"
                         />
 

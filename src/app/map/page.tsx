@@ -8,6 +8,8 @@ import { AQIStation } from '@/lib/types';
 // Force dynamic since we're using randomized simulation
 export const dynamic = 'force-dynamic';
 
+import { createClient } from '@/lib/supabase/server';
+
 async function getData(range: TimeRange = 'live') {
   let stations: AQIStation[] = [];
   const useLive = range === 'live' && !!process.env.WAQI_API_TOKEN;
@@ -35,7 +37,30 @@ async function getData(range: TimeRange = 'live') {
   }
 
   const sensors = generateSensors(range, 50);
-  const reports = generateReports(range, 20);
+
+  // FETCH REPORTS FROM SUPABASE
+  const supabase = await createClient();
+  const { data: dbReports } = await supabase
+    .from('citizen_reports')
+    .select('*')
+    .order('reported_at', { ascending: false })
+    .limit(50);
+
+  let reports = [];
+  if (dbReports && dbReports.length > 0) {
+    reports = dbReports.map((r: any) => ({
+      id: r.id,
+      type: r.report_type, // Assuming FE maps this string to icon/color
+      severity: r.severity,
+      description: r.description,
+      // Parse GeoJSON-like object if using Supabase client, or fallback
+      location: r.location?.coordinates ? { lat: r.location.coordinates[1], lng: r.location.coordinates[0] } : { lat: 28.6139, lng: 77.2090 },
+      timestamp: r.reported_at,
+      verified: r.verified || false
+    }));
+  } else {
+    reports = generateReports(range, 20);
+  }
 
   return { stations, sensors, reports, isLive: useLive && stations.length > 0 && !stations[0].name.includes('(Sim)') };
 }

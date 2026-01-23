@@ -23,6 +23,9 @@ export default function LandingPage() {
                         <Link href="/about" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                             About
                         </Link>
+                        <Link href="/admin" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                            Admin
+                        </Link>
                         <Link
                             href="/login"
                             className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-bold hover:bg-white/10 transition-all"

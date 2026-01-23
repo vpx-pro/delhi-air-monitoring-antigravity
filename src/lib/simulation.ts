@@ -156,7 +156,6 @@ export function generateReports(range: TimeRange = 'live', count: number = 10): 
 
     for (let i = 0; i < totalCount; i++) {
         // Randomly pick a "Region Center" to spawn reports near
-        // This ensures reports appear in Haryana and Punjab too
         const centers = [
             { lat: 28.6139, lng: 77.2090 }, // Delhi
             { lat: 28.4595, lng: 77.0266 }, // Gurugram
@@ -169,13 +168,19 @@ export function generateReports(range: TimeRange = 'live', count: number = 10): 
         const lat = center.lat + (Math.random() - 0.5) * 1.0;
         const lng = center.lng + (Math.random() - 0.5) * 1.0;
 
+        // Status Logic
+        const rand = Math.random();
+        let status: 'pending' | 'verified' | 'rejected' = 'pending';
+        if (rand > 0.8) status = 'verified';
+        if (rand > 0.95) status = 'rejected';
+
         reports.push({
             id: `report-${i + 1}`,
             type: types[Math.floor(Math.random() * types.length)],
             severity: Math.floor(Math.random() * 5) + 1,
             location: { lat, lng },
             timestamp: new Date(Date.now() - Math.random() * 3600 * 1000 * 4).toISOString(), // last 4 hours
-            verified: Math.random() > 0.8,
+            status,
         });
     }
     return reports;

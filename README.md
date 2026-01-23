@@ -1,111 +1,114 @@
-# Delhi Pollution Live Map (Open Source)
+# AI-ICCC: Integrated Command & Control Centre for Air Quality
 
-A real-time, collaboration-friendly dashboard to pinpoint precise locations of emissions, enabling communities to work on them individually.
-This project aggregates official CPCB data and combines it with simulated citizen sensor data and crowdsourced reports to provide a comprehensive view of air quality across NorthWest India.
+> **Delhi’s single largest & most consequential real-time AI deployment.**
 
-## Roadmap & Priorities
+This platform serves as the **Digital Nervous System** for Delhi's air quality governance, integrating environmental sensing, mobility data, enforcement systems, and policy execution at city scale.
 
-This project follows a strict prioritized rollout plan. See [ROADMAP.md](./ROADMAP.md) for full details.
+![AI-ICCC Command Centre](https://placehold.co/1200x600/1e293b/white?text=AI-ICCC+Command+Centre+Preview)
 
-1.  **Phase 1 (Core)**: Delhi City, Monthly/Weekly Data (PM 2.5/10).
-2.  **Phase 2 (Expansion)**: NCR, Daily Data.
-3.  **Phase 3 (Regional)**: NorthWest India, Real-Time Data (All Gases).
+## 🌟 The Vision: "See, Think, Act"
 
-## Features
+We are building a unified "War Room" that moves beyond passive monitoring to active Air Quality Management (AQM).
 
-### 🌍 Interactive Map & Filtering
-- **Dynamic Region Selection**: Seamlessly switch between **Delhi**, **Haryana**, and **Punjab** views to analyze regional pollution trends.
-- **Pollutant Filtering**: Toggle layers for **PM2.5**, **PM10**, **NO2**, **SO2**, and **CO** to visualize specific pollutants.
-- **Time Range Analysis**: Filter historical data views (Last 24h, 7 Days, 30 Days).
-- **Fire Mode**: A specialized mode to track biomass burning events ("GARBAGE_BURNING") synced with the citizen reports layer.
+### 1. **Sensing Layer (The "Eyes")**
+*   **Official Monitoring**: Real-time integration with **CPCB/DPCC** reference-grade stations.
+*   **Satellite Sentinel**: (Mock) Visualization of **Aerosol Optical Depth (AOD)** and **NO2 Plumes** using processed satellite imagery (Sentinel-5P).
+*   **Hyper-Local Sensing**: (Simulated) A dense grid of low-cost IoT sensors.
+*   **Citizen Intelligence**: Crowdsourced verification of "Ground Truth" (fires, dust) via mobile reporting.
 
-### 📊 Multi-Layer Data Visualization
-- 🛡️ **Official CPCB Stations**: Real-time AQI and pollutant data from official government stations.
-- 📡 **Citizen Sensors** (Simulated): A dense network of low-cost IoT sensors providing granular neighborhood-level data.
-- ⚠️ **Citizen Reports** (Simulated): Crowdsourced reports of pollution events like burning, construction dust, and traffic congestion.
+### 2. **Intelligence Layer (The "Brain")**
+*   **Source Apportionment**: distinguishing between **Stubble Burning** (Punjab/Haryana), **Traffic Congestion**, and **Local Dust**.
+*   **Predictive AQI**: Forecasting pollution trends based on meteorological / traffic patterns.
+*   **Compliance Monitoring**: (Planned) Automated alerts for industrial zones exceeding emission norms.
 
-### 🎨 Modern UI/UX
-- **Glassmorphism Design**: sleek, semi-transparent controls for a premium look.
-- **Responsive Layout**: Optimized for both Desktop (collapsible sidebar) and Mobile (bottom drawer).
-- **Dynamic Map Styling**: Automatic map fly-to and zoom adjustments based on region selection.
+### 3. **Action Layer (The "Hands")**
+*   **Traffic Interventions**: Real-time traffic congestion heatmaps overlapped with pollution spikes.
+*   **Enforcement Dispatch**: (Planned) Directing ground teams to verified fire/dust hotspots.
+*   **Policy Simulation**: (Planned) "Digital Twin" to test GRAP (Graded Response Action Plan) measures before rollout.
 
-## Tech Stack
+---
 
-This project is built with a modern, performance-focused stack:
+## 🚀 Key Features
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Map Engine**: [MapLibre GL](https://maplibre.org/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Utils**: `clsx`, `tailwind-merge` for dynamic classes.
-- **Deployment**: Vercel (recommended)
+### 🖥️ Command Centre Console
+A professional, high-density dashboard designed for decision-makers.
+*   **Global Status Panel**: Real-time metrics for City-wide Avg AQI and Active Fire counts.
+*   **Multi-Modal Layers**: Toggle and overlay complex datasets:
+    *   🛡️ **CPCB Stations**: The gold standard reference.
+    *   🌍 **Satellite Data**: Regional plume visualization.
+    *   🚗 **Traffic Heatmap**: Congestion severity corridors.
+    *   🔥 **Citizen Reports**: Verified garbage/crop burning incidents.
+*   **Contextual filtering**: Switch between Delhi, Haryana, and Punjab regions instantly.
 
-## Getting Started
+### 📱 Citizen Agent App
+A seamless mobile experience for the public to act as "sensors".
+*   **Report Incidents**: Geo-tagged reporting of pollution sources (Waste Burning, Construction Dust).
+*   **Evidence Collection**: Photo uploads and severity grading.
+*   **Personal Safety**: Real-time AQI alerts for user's current location.
+
+---
+
+## 🛠️ Tech Stack
+
+*   **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+*   **Maps**: MapLibre GL JS (Vector Tiles)
+*   **Styling**: Tailwind CSS 4.0, Shadcn/UI patterns
+*   **Icons**: Lucide React
+*   **State Management**: URL-based state (shareable deep links)
+
+---
+
+## 🚦 Getting Started
 
 ### Prerequisites
-
-- Node.js 18+
-- npm or pnpm
+*   Node.js 18+
+*   pnpm / npm
 
 ### Installation
 
-1.  **Clone the repository:**
+1.  **Clone the repo**
     ```bash
-    git clone https://github.com/your-username/delhi-pollution-map.git
-    cd delhi-pollution-map
+    git clone https://github.com/antigravity-platform/delhi-pollution-iccc.git
+    cd delhi-pollution-iccc
     ```
 
-2.  **Install dependencies:**
+2.  **Install dependencies**
     ```bash
-    npm install
-    # or
     pnpm install
     ```
 
-3.  **Run the development server:**
+3.  **Run Development Server**
     ```bash
-    npm run dev
+    pnpm dev
     ```
 
-4.  **Open the Map:**
-    Navigate to [http://localhost:3000](http://localhost:3000).
+4.  **Access the Command Centre**
+    Open [http://localhost:3000](http://localhost:3000)
 
-## Architecture & Data Simulation
+### Data Simulation Mode
+By default, the system runs in **Hybrid Mode**:
+*   If `WAQI_API_TOKEN` is set: Fetches **Live CPCB Data**.
+*   If token is missing: Falls back to **Scientific Simulation** for stations.
+*   *Satellite & Traffic data are currently mocked for demonstration.*
 
-> [!IMPORTANT]
-> **Hybrid Mode**: This project automatically switches between "Live" and "Simulated" data.
->
-> - **Live Data (WAQI/CPCB)**: If a `WAQI_API_TOKEN` is present in `.env.local`, the app fetches real-time AQI data from official stations.
-> - **Simulation Fallback**: If no token is provided or the API fails, the app seamlessly falls back to a robust simulation engine.
->
-> **Data Layers:**
-> 1.  **Official Data**: Live API or Static Snapshot (CPCB).
-> 2.  **Citizen Sensors**: Procedurally generated based on proximity to official stations + noise covariance.
-> 3.  **Reports**: Randomly generated clusters of pollution events.
+---
 
-To connect a real backend for sensors/reports:
-1.  Set up a Supabase project.
-2.  Run the SQL schema provided in `supabase/schema.sql`.
-3.  Update `src/app/api/...` routes to fetch from Supabase instead of `src/lib/simulation.ts`.
+## 📜 Roadmap
 
-### Live Data Setup
-To enable live CPCB data:
-1.  Get a free token from [AQICN](https://aqicn.org/data-platform/token/).
-2.  Create `.env.local`:
-    ```env
-    WAQI_API_TOKEN=your_token_here
-    ```
-3.  Restart the dev server.
+*   **Phase 1: Command Centre (✅ Completed)**
+    *   Establish "Dark Mode" War Room aesthetics.
+    *   Integrate Satellite & Traffic mock layers.
+    *   Build Collapsible Command Panel.
 
-## Contributing
+*   **Phase 2: The Agentic Loop (🚧 In Progress)**
+    *   Complete Citizen Reporting flow.
+    *   Admin verification dashboard.
 
-We welcome contributions! Please see `CONTRIBUTING.md` (coming soon) for details.
+*   **Phase 3: The AI Brain**
+    *   Predictive Forecasting Models.
+    *   "Sim-City" Policy Sliders.
 
-1.  Fork the repo.
-2.  Create a feature branch.
-3.  Submit a Pull Request.
+---
 
 ## License
-
-MIT License. This is a public instrument.
+MIT License. Open Source for the Planet.

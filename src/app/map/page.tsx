@@ -56,7 +56,7 @@ async function getData(range: TimeRange = 'live') {
       // Parse GeoJSON-like object if using Supabase client, or fallback
       location: r.location?.coordinates ? { lat: r.location.coordinates[1], lng: r.location.coordinates[0] } : { lat: 28.6139, lng: 77.2090 },
       timestamp: r.reported_at,
-      verified: r.verified || false
+      status: (r.verified ? 'verified' : 'pending') as 'pending' | 'verified' | 'rejected'
     }));
   } else {
     reports = generateReports(range, 20);

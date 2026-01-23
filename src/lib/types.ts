@@ -39,7 +39,7 @@ export type CitizenReport = {
   severity: number; // 1-5
   location: Coordinates;
   timestamp: string;
-  verified: boolean;
+  status: 'pending' | 'verified' | 'rejected';
 };
 
 export type PollutionSourceCategory =
@@ -60,8 +60,23 @@ export type PollutionSource = {
   location: Coordinates;
 };
 
+export type SatelliteData = {
+  id: string;
+  type: 'AOD' | 'NO2' | 'FIRE';
+  geometry: GeoJSON.Polygon;
+  value: number; // intensity 0-1
+  timestamp: string;
+};
+
+export type TrafficData = {
+  id: string;
+  geometry: GeoJSON.LineString;
+  congestionLevel: 'low' | 'moderate' | 'high' | 'severe';
+  speed: number;
+};
+
 export type LayerToggle = {
-  id: 'cpcb' | 'sensors' | 'reports';
+  id: 'cpcb' | 'sensors' | 'reports' | 'satellite' | 'traffic';
   label: string;
   active: boolean;
   color: string;

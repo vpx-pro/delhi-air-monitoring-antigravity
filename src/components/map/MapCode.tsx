@@ -10,6 +10,7 @@ import ReportModal from './ReportModal';
 import CommandPanel from './CommandPanel';
 import { createClient } from '@/lib/supabase/client';
 import { MOCK_SATELLITE_DATA, MOCK_TRAFFIC_DATA } from '@/lib/mock_layers';
+import { calculateDistance, getAQIStatus, AQIStatus } from '@/lib/utils';
 
 type Props = {
     stations: AQIStation[];
@@ -50,6 +51,9 @@ export default function MapCode({ stations, sensors, reports, sources, isLive = 
     const [selectedRegion, setSelectedRegion] = useState<Region>('Delhi');
     const [fireMode, setFireMode] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    // Safety Alert State
+    const [userSafety, setUserSafety] = useState<{ status: AQIStatus, station: AQIStation, distance: number } | null>(null);
 
     const [layers, setLayers] = useState<LayerToggle[]>([
         { id: 'cpcb', label: 'Official CPCB', active: true, color: '#ef4444' },
@@ -328,6 +332,89 @@ export default function MapCode({ stations, sensors, reports, sources, isLive = 
 
     }, [loaded, stations, sensors, reports, layers, selectedPollutant, fireMode, isLive]);
 
+    // Hover Effects & Tooltips
+    useEffect(() => {
+        if (!map.current || !loaded) return;
+
+        const popup = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            className: 'aqi-popup',
+            maxWidth: '240px'
+        });
+
+        // Handler for Stations
+        const handleStationHover = (e: any) => {
+            map.current!.getCanvas().style.cursor = 'pointer';
+
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const props = e.features[0].properties;
+
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            const html = `
+                <div class="px-2 py-1 text-slate-800">
+                    <h3 class="font-bold text-sm">${props.name}</h3>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs font-semibold px-1.5 py-0.5 rounded bg-slate-200">AQI: ${props.aqi}</span>
+                        <span class="text-xs text-slate-500">PM2.5: ${props.pm25}</span>
+                    </div>
+                </div>
+            `;
+
+            popup.setLngLat(coordinates).setHTML(html).addTo(map.current!);
+        };
+
+        // Handler for Citizen Sensors (if they have names/locations)
+        const handleSensorHover = (e: any) => {
+            map.current!.getCanvas().style.cursor = 'pointer';
+
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const props = e.features[0].properties; // CitizenSensor props
+
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            const val = props.pm25 ? `PM2.5: ${props.pm25}` : 'No Data';
+
+            const html = `
+                <div class="px-2 py-1 text-slate-800">
+                    <h3 class="font-bold text-sm text-blue-600">Citizen Sensor</h3>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-100">${val}</span>
+                        <span class="text-xs text-slate-500">Conf: ${(props.confidence * 100).toFixed(0)}%</span>
+                    </div>
+                </div>
+            `;
+
+            popup.setLngLat(coordinates).setHTML(html).addTo(map.current!);
+        }
+
+        const handleLeave = () => {
+            map.current!.getCanvas().style.cursor = '';
+            popup.remove();
+        };
+
+        map.current.on('mouseenter', 'cpcb-layer', handleStationHover);
+        map.current.on('mouseleave', 'cpcb-layer', handleLeave);
+
+        map.current.on('mouseenter', 'sensors-layer', handleSensorHover);
+        map.current.on('mouseleave', 'sensors-layer', handleLeave);
+
+        return () => {
+            if (map.current) {
+                map.current.off('mouseenter', 'cpcb-layer', handleStationHover);
+                map.current.off('mouseleave', 'cpcb-layer', handleLeave);
+                map.current.off('mouseenter', 'sensors-layer', handleSensorHover);
+                map.current.off('mouseleave', 'sensors-layer', handleLeave);
+                popup.remove();
+            }
+        };
+    }, [loaded]);
+
     // Pollution Source Markers (Existing Logic preserved)
     useEffect(() => {
         if (!map.current || !loaded) return;
@@ -379,7 +466,25 @@ export default function MapCode({ stations, sensors, reports, sources, isLive = 
         if (!navigator.geolocation) { alert("Geolocation n/a"); return; }
         navigator.geolocation.getCurrentPosition(pos => {
             const { latitude, longitude } = pos.coords;
-            map.current?.flyTo({ center: [longitude, latitude], zoom: 15 });
+            map.current?.flyTo({ center: [longitude, latitude], zoom: 14 });
+
+            // Find Nearest Station
+            let minDist = Infinity;
+            let nearest: AQIStation | null = null;
+
+            stations.forEach(station => {
+                const d = calculateDistance(latitude, longitude, station.location.lat, station.location.lng);
+                if (d < minDist) {
+                    minDist = d;
+                    nearest = station;
+                }
+            });
+
+            if (nearest) {
+                const status = getAQIStatus((nearest as AQIStation).aqi);
+                setUserSafety({ status, station: nearest, distance: minDist });
+            }
+
             if (isReporting) {
                 setReportLocation({ lng: longitude, lat: latitude });
                 setReportModalOpen(true);
@@ -413,9 +518,44 @@ export default function MapCode({ stations, sensors, reports, sources, isLive = 
                 <div ref={mapContainer} className="absolute inset-0 z-0 bg-slate-900" style={{ width: '100%', height: '100%' }} />
                 <ReportModal isOpen={reportModalOpen} onClose={() => setReportModalOpen(false)} location={reportLocation} />
 
+                {/* Safety Alert Card */}
+                {userSafety && (
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 w-[90%] max-w-md animate-in fade-in slide-in-from-top-4">
+                        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                            <div className="flex items-stretch">
+                                <div className="w-2" style={{ backgroundColor: userSafety.status.color }} />
+                                <div className="p-4 flex-1">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <h3 className="font-bold text-white text-lg">
+                                            {userSafety.status.isSafe ? "You are in a Safe Zone" : "Health Alert"}
+                                        </h3>
+                                        <button onClick={() => setUserSafety(null)} className="text-slate-400 hover:text-white">✕</button>
+                                    </div>
+                                    <p className="text-sm text-slate-300 mb-3">{userSafety.status.message}</p>
+
+                                    <div className="flex items-center justify-between text-xs bg-black/40 rounded-lg p-3">
+                                        <div className="text-slate-400">
+                                            Nearest Sensor: <span className="text-white font-semibold">{userSafety.station.name}</span>
+                                            <div className="mt-0.5">{(userSafety.distance).toFixed(1)} km away</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold" style={{ color: userSafety.status.color }}>
+                                                {userSafety.station.aqi} <span className="text-xs text-slate-500">AQI</span>
+                                            </div>
+                                            <div className="font-medium" style={{ color: userSafety.status.color }}>
+                                                {userSafety.status.label}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Reporting Instructions */}
                 {isReporting && (
-                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-max">
+                    <div className="absolute top-48 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-max">
                         <div className="bg-black/80 text-white px-6 py-3 rounded-full border border-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.5)] animate-bounce font-bold flex items-center gap-3">
                             <span>📍 Tap location to report</span>
                             <button onClick={() => setIsReporting(false)} className="text-slate-400 hover:text-white text-xs uppercase border-l border-white/20 pl-3">Cancel</button>
@@ -439,12 +579,27 @@ export default function MapCode({ stations, sensors, reports, sources, isLive = 
                         <span className="text-sm font-bold">Controls</span>
                     </button>
                     <button
+                        onClick={handleUseMyLocation}
+                        className="bg-blue-600 hover:bg-blue-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-105"
+                    >
+                        <Locate className="w-6 h-6" />
+                    </button>
+                    <button
                         onClick={handleReportClick}
                         className="bg-pink-600 hover:bg-pink-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-105"
                     >
                         <ShieldAlert className="w-6 h-6" />
                     </button>
                 </div>
+
+                {/* Desktop Locate Button */}
+                <button
+                    onClick={handleUseMyLocation}
+                    className="hidden md:flex absolute bottom-24 right-8 z-30 items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-2xl transition-all hover:scale-105"
+                >
+                    <Locate className="w-5 h-5" />
+                    <span>Check My Safety</span>
+                </button>
 
                 {/* Desktop Report Button */}
                 <button

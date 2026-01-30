@@ -67,3 +67,8 @@ export function getAQIStatus(aqi: number): AQIStatus {
         };
     }
 }
+
+export function calculateCigarettes(pm25: number): number {
+    // Berkeley Earth rule of thumb: 22 µg/m3 of PM2.5 ≈ 1 cigarette
+    return parseFloat((pm25 / 22).toFixed(1));
+}

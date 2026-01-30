@@ -40,21 +40,21 @@ A professional, high-density dashboard designed for decision-makers.
     *   🔥 **Citizen Reports**: Verified garbage/crop burning incidents.
 *   **Contextual filtering**: Switch between Delhi, Haryana, and Punjab regions instantly.
 
-### 📱 Citizen Agent App
-A seamless mobile experience for the public to act as "sensors".
-*   **Report Incidents**: Geo-tagged reporting of pollution sources (Waste Burning, Construction Dust).
-*   **Evidence Collection**: Photo uploads and severity grading.
-*   **Personal Safety**: Real-time AQI alerts for user's current location.
+### 📱 Citizen Agent App (Mobile Pilot)
+A dedicated mobile application (React Native) for the public.
+*   **Check My Safety**: Instant location-based AQI analysis. Calculates distance to nearest station and provides health/safety alerts.
+*   **Report Incidents**: Geo-tagged reporting of sources (Waste Burning, Dust).
+*   **Real-time Alerts**: Push notifications for severe pollution spikes (Planned).
 
 ---
 
 ## 🛠️ Tech Stack
 
 *   **Frontend**: Next.js 15 (App Router), React 19, TypeScript
-*   **Maps**: MapLibre GL JS (Vector Tiles)
-*   **Styling**: Tailwind CSS 4.0, Shadcn/UI patterns
-*   **Icons**: Lucide React
-*   **State Management**: URL-based state (shareable deep links)
+*   **Mobile**: React Native, Expo, Expo Router
+*   **Maps**: MapLibre GL JS (Web), React Native Maps (Mobile)
+*   **Styling**: Tailwind CSS 4.0 (Web), Native StyleSheet (Mobile)
+*   **State Management**: URL-based state (Web)
 
 ---
 
@@ -85,6 +85,33 @@ A seamless mobile experience for the public to act as "sensors".
 4.  **Access the Command Centre**
     Open [http://localhost:3000](http://localhost:3000)
 
+### 📱 Running the Mobile App
+
+1.  **Navigate to Mobile Directory**
+    ```bash
+    cd mobile
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    # or
+    npx expo install
+    ```
+
+3.  **Start the Expo Server**
+    ```bash
+    npx expo start
+    ```
+
+4.  **Launch on Device**
+    *   **iOS Simulator**: Press `i`
+    *   **Android Emulator**: Press `a`
+    *   **Physical Device**: 
+        1. Download **Expo Go** app on your phone.
+        2. Scan the QR code shown in the terminal.
+        3. **Important**: If connecting to a local backend, update `API_URL` in `mobile/App.tsx` to your computer's local IP (e.g., `http://192.168.0.x:3000`) instead of `localhost`.
+
 ### Data Simulation Mode
 By default, the system runs in **Hybrid Mode**:
 *   If `WAQI_API_TOKEN` is set: Fetches **Live CPCB Data**.
@@ -107,6 +134,11 @@ By default, the system runs in **Hybrid Mode**:
 *   **Phase 3: The AI Brain (✅ Beta Live)**
     *   Predictive Forecasting Models (ARIMA/TensorFlow).
     *   "Sim-City" Policy Sliders & Impact Analysis.
+
+*   **Phase 4: Mobile Pilot (✅ Completed)**
+    *   Native App scaffolding (Expo).
+    *   Location-based "Check My Safety" feature.
+    *   Backend integration for real-time station data.
 
 ---
 

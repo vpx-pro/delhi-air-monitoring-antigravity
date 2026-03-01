@@ -20,6 +20,9 @@ export default function LandingPage() {
                         <Link href="/map" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                             Live Map
                         </Link>
+                        <Link href="/analytics" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                            Analytics
+                        </Link>
                         <Link href="/about" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                             About
                         </Link>

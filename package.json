@@ -6,14 +6,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "pipeline": "tsx scripts/pipeline/run-all.ts",
+    "pipeline:openaq:sync": "tsx scripts/pipeline/openaq/sync-locations.ts",
+    "pipeline:openaq:backfill": "tsx scripts/pipeline/openaq/backfill.ts",
+    "pipeline:openaq:incremental": "tsx scripts/pipeline/openaq/incremental.ts",
+    "pipeline:weather:backfill": "tsx scripts/pipeline/weather/backfill.ts",
+    "pipeline:weather:incremental": "tsx scripts/pipeline/weather/incremental.ts",
+    "pipeline:fire:backfill": "tsx scripts/pipeline/fire/backfill.ts",
+    "pipeline:fire:incremental": "tsx scripts/pipeline/fire/incremental.ts",
+    "pipeline:traffic": "tsx scripts/pipeline/traffic/sync.ts",
+    "pipeline:cpcb:import": "tsx scripts/pipeline/cpcb/import-csv.ts",
+    "pipeline:export": "tsx scripts/pipeline/export-training-data.ts"
   },
   "dependencies": {
+    "@insforge/sdk": "^1.1.6-dev.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.90.0",
     "@tensorflow/tfjs": "^4.22.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.3.1",
     "lucide-react": "^0.562.0",
     "maplibre-gl": "^5.15.0",
     "next": "16.1.1",
@@ -30,6 +43,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

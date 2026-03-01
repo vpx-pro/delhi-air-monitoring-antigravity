@@ -1,9 +1,9 @@
+import { createClient as createInsforgeClient } from '@insforge/sdk';
 
-import { createBrowserClient } from '@supabase/ssr'
-
+// Insforge client for browser-side usage
 export function createClient() {
-    return createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+  return createInsforgeClient({
+    baseUrl: process.env.NEXT_PUBLIC_INSFORGE_BASE_URL!,
+    anonKey: process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!,
+  });
 }

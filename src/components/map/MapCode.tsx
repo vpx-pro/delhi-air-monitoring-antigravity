@@ -447,9 +447,9 @@ export default function MapCode({ stations, sensors, reports, sources, isLive = 
 
     useEffect(() => {
         const checkUser = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+            const insforge = createClient();
+            const { data, error } = await insforge.auth.getCurrentSession();
+            setUser(data?.session?.user ?? null);
         }
         checkUser();
     }, []);

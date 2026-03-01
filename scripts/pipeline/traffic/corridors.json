@@ -1,0 +1,17 @@
+[
+  { "name": "Ring Road (North)", "road_type": "arterial", "waypoints": [[28.6920, 77.1855], [28.7080, 77.2200]] },
+  { "name": "Ring Road (South)", "road_type": "arterial", "waypoints": [[28.5650, 77.1700], [28.5480, 77.2500]] },
+  { "name": "NH-48 (Delhi-Gurugram)", "road_type": "highway", "waypoints": [[28.5270, 77.1080], [28.4600, 77.0300]] },
+  { "name": "NH-24 (Delhi-Ghaziabad)", "road_type": "highway", "waypoints": [[28.6350, 77.2800], [28.6700, 77.4400]] },
+  { "name": "GT Road (Karnal)", "road_type": "highway", "waypoints": [[28.7500, 77.1200], [29.0000, 77.0000]] },
+  { "name": "Mathura Road", "road_type": "arterial", "waypoints": [[28.5800, 77.2400], [28.5200, 77.2800]] },
+  { "name": "Outer Ring Road (East)", "road_type": "arterial", "waypoints": [[28.6200, 77.3100], [28.6800, 77.3200]] },
+  { "name": "Vikas Marg", "road_type": "arterial", "waypoints": [[28.6350, 77.2500], [28.6350, 77.3100]] },
+  { "name": "Mehrauli-Badarpur Road", "road_type": "arterial", "waypoints": [[28.5200, 77.1800], [28.4800, 77.3000]] },
+  { "name": "NH-44 (GT Karnal Road)", "road_type": "highway", "waypoints": [[28.7200, 77.1500], [29.3900, 76.9600]] },
+  { "name": "MG Road Gurugram", "road_type": "arterial", "waypoints": [[28.4700, 77.0200], [28.4500, 77.0800]] },
+  { "name": "Sohna Road", "road_type": "arterial", "waypoints": [[28.4200, 77.0500], [28.3500, 77.0800]] },
+  { "name": "Delhi-Meerut Expressway", "road_type": "expressway", "waypoints": [[28.6800, 77.3200], [28.9800, 77.7000]] },
+  { "name": "Dwarka Expressway", "road_type": "expressway", "waypoints": [[28.5900, 77.0400], [28.4600, 76.9800]] },
+  { "name": "ITO Flyover", "road_type": "arterial", "waypoints": [[28.6285, 77.2410], [28.6350, 77.2500]] }
+]

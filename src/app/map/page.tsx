@@ -38,11 +38,11 @@ async function getData(range: TimeRange = 'live') {
 
   const sensors = generateSensors(range, 50);
 
-  // FETCH REPORTS FROM SUPABASE
-  const supabase = await createClient();
-  const { data: dbReports } = await supabase
+  // FETCH REPORTS FROM INSFORGE
+  const insforge = await createClient();
+  const { data: dbReports } = await insforge.database
     .from('citizen_reports')
-    .select('*')
+    .select()
     .order('reported_at', { ascending: false })
     .limit(50);
 
@@ -50,11 +50,10 @@ async function getData(range: TimeRange = 'live') {
   if (dbReports && dbReports.length > 0) {
     reports = dbReports.map((r: any) => ({
       id: r.id,
-      type: r.report_type, // Assuming FE maps this string to icon/color
+      type: r.report_type,
       severity: r.severity,
       description: r.description,
-      // Parse GeoJSON-like object if using Supabase client, or fallback
-      location: r.location?.coordinates ? { lat: r.location.coordinates[1], lng: r.location.coordinates[0] } : { lat: 28.6139, lng: 77.2090 },
+      location: { lat: r.latitude, lng: r.longitude },
       timestamp: r.reported_at,
       status: (r.verified ? 'verified' : 'pending') as 'pending' | 'verified' | 'rejected'
     }));

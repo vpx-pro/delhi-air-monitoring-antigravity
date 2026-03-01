@@ -22,8 +22,8 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            const supabase = createClient();
-            const { error: authError } = await supabase.auth.signInWithPassword({
+            const insforge = createClient();
+            const { error: authError } = await insforge.auth.signInWithPassword({
                 email,
                 password,
             });

@@ -1,28 +1,93 @@
 import * as tf from '@tensorflow/tfjs';
+import { getTrainingData, TrainingRow } from './training-data';
+
+// Feature count: temp, humidity, windSpeed, windDir, pressure, cloudCover, fireCount, frp
+const FEATURE_COUNT = 8;
 
 export class AQIPredictor {
     model: tf.Sequential | null = null;
     isTraining: boolean = false;
+    trainedOnRealData: boolean = false;
 
     constructor() {
         this.initModel();
     }
 
     async initModel() {
-        // Simple linear regression model for demo purposes
-        // In a real app, we would load a pre-trained model via tf.loadLayersModel('...')
         const model = tf.sequential();
-        model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
-        model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
+        model.add(tf.layers.dense({ units: 16, inputShape: [FEATURE_COUNT], activation: 'relu' }));
+        model.add(tf.layers.dense({ units: 8, activation: 'relu' }));
+        model.add(tf.layers.dense({ units: 1 }));
+        model.compile({ loss: 'meanSquaredError', optimizer: tf.train.adam(0.001) });
 
         this.model = model;
 
-        // Train on some dummy data immediately to have *something* ready
-        // X: [time_step], Y: [aqi_trend]
-        const xs = tf.tensor2d([-2, -1, 0, 1, 2], [5, 1]);
-        const ys = tf.tensor2d([150, 160, 180, 200, 210], [5, 1]); // Upward trend
+        // Fallback: train on dummy data so predictions work immediately
+        const xs = tf.tensor2d([
+            [25, 60, 5, 180, 1013, 50, 0, 0],
+            [20, 70, 3, 200, 1010, 60, 5, 100],
+            [15, 80, 2, 220, 1008, 80, 20, 500],
+            [10, 90, 1, 240, 1005, 90, 50, 1000],
+            [30, 40, 8, 160, 1015, 30, 0, 0],
+        ]);
+        const ys = tf.tensor2d([[120], [180], [300], [450], [80]]);
 
-        await this.model.fit(xs, ys, { epochs: 50 });
+        await this.model.fit(xs, ys, { epochs: 50, verbose: 0 });
+    }
+
+    async trainOnRealData(from?: string, to?: string) {
+        if (this.isTraining) return;
+        this.isTraining = true;
+
+        try {
+            const defaultFrom = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+            const defaultTo = new Date().toISOString();
+            const rows = await getTrainingData(from || defaultFrom, to || defaultTo);
+
+            if (rows.length < 10) {
+                console.warn('Not enough training data:', rows.length);
+                return;
+            }
+
+            // Filter rows with complete data
+            const validRows = rows.filter(
+                (r) => r.pm25 > 0 && r.temp !== null && r.humidity !== null && r.windSpeed !== null
+            );
+
+            if (validRows.length < 10) {
+                console.warn('Not enough valid training rows:', validRows.length);
+                return;
+            }
+
+            const features = validRows.map((r) => [
+                r.temp || 25,
+                r.humidity || 50,
+                r.windSpeed || 5,
+                r.windDir || 180,
+                r.pressure || 1013,
+                r.cloudCover || 50,
+                r.fireCount || 0,
+                r.frp || 0,
+            ]);
+            const labels = validRows.map((r) => [r.pm25]);
+
+            const xs = tf.tensor2d(features);
+            const ys = tf.tensor2d(labels);
+
+            await this.model!.fit(xs, ys, {
+                epochs: 100,
+                batchSize: 32,
+                validationSplit: 0.2,
+                verbose: 0,
+            });
+
+            xs.dispose();
+            ys.dispose();
+            this.trainedOnRealData = true;
+            console.log(`Model trained on ${validRows.length} real data points`);
+        } finally {
+            this.isTraining = false;
+        }
     }
 
     async predictNext24Hours(currentAQI: number): Promise<number[]> {

@@ -1,0 +1,17 @@
+{
+  "Anand Vihar, Delhi - DPCC": { "id": "cpcb-001", "lat": 28.6469, "lon": 77.3160 },
+  "R.K. Puram, Delhi - DPCC": { "id": "cpcb-002", "lat": 28.5632, "lon": 77.1869 },
+  "Punjabi Bagh, Delhi - DPCC": { "id": "cpcb-003", "lat": 28.6620, "lon": 77.1242 },
+  "ITO, Delhi - CPCB": { "id": "cpcb-004", "lat": 28.6285, "lon": 77.2410 },
+  "Mandir Marg, Delhi - DPCC": { "id": "cpcb-005", "lat": 28.6364, "lon": 77.1987 },
+  "Vikas Sadan, Gurugram - HSPCB": { "id": "hry-001", "lat": 28.4595, "lon": 77.0266 },
+  "Sector 16A, Faridabad - HSPCB": { "id": "hry-002", "lat": 28.4089, "lon": 77.3178 },
+  "GT Road, Panipat - HSPCB": { "id": "hry-003", "lat": 29.3909, "lon": 76.9635 },
+  "Punjab Ag. University, Ludhiana - PPCB": { "id": "pjb-001", "lat": 30.9010, "lon": 75.8573 },
+  "Golden Temple, Amritsar - PPCB": { "id": "pjb-002", "lat": 31.6200, "lon": 74.8765 },
+  "Sector 25, Chandigarh - CPCC": { "id": "pjb-003", "lat": 30.7333, "lon": 76.7794 },
+  "DTU, Delhi - CPCB": { "id": "cpcb-006", "lat": 28.7500, "lon": 77.1176 },
+  "NSIT Dwarka, Delhi - CPCB": { "id": "cpcb-007", "lat": 28.6089, "lon": 77.0322 },
+  "Patparganj, Delhi - DPCC": { "id": "cpcb-008", "lat": 28.6236, "lon": 77.2878 },
+  "Siri Fort, Delhi - CPCB": { "id": "cpcb-009", "lat": 28.5494, "lon": 77.2154 }
+}

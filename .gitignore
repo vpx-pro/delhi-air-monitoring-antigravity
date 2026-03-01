@@ -37,6 +37,13 @@ yarn-error.log*
 # vercel
 .vercel
 
+# data files (large CSVs)
+/data/
+
+# claude code
+.claude/
+.mcp.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

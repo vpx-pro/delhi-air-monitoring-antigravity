@@ -35,22 +35,16 @@ export default function SignupPage() {
         }
 
         try {
-            const supabase = createClient();
-            const { data, error: authError } = await supabase.auth.signUp({
+            const insforge = createClient();
+            const { data, error: authError } = await insforge.auth.signUp({
                 email: formData.email,
                 password: formData.password,
-                options: {
-                    data: {
-                        full_name: formData.fullName,
-                        phone: formData.phone,
-                        role: formData.role,
-                    },
-                },
+                name: formData.fullName,
             });
 
             if (authError) {
                 setError(authError.message);
-            } else if (data.user) {
+            } else if (data?.user) {
                 // Success
                 router.push('/map?onboarding=true');
                 router.refresh();
